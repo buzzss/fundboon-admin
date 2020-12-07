@@ -1,58 +1,82 @@
 import React from "react";
 import { Form } from "react-bootstrap";
-const PersonalInformation = () => {
+const PersonalInformation = (props) => {
+  const { data, setData } = props;
+  const { personalDetails } = data;
+
+  const handleChange = (event) => {
+    console.log(event.target);
+
+    const newPersonalDetails = {
+      ...personalDetails,
+      [event.target.id]: event.target.value,
+    };
+    setData({ ...data, personalDetails: newPersonalDetails });
+  };
+
+  const {
+    userType,
+    firstName,
+    lastName,
+    gender,
+    email,
+    phoneNumber,
+    nationality,
+    pan,
+    aadhar,
+    password,
+    dob,
+  } = personalDetails;
   return (
     <>
       <Form>
         <Form.Group controlId="exampleForm.SelectCustom">
           <Form.Label>User Type</Form.Label>
-          <Form.Control as="select" custom>
-            <option>----</option>
-            <option>Normal</option>
-            <option>Staff</option>
-            <option>Associate</option>
-            <option>Admin</option>
+          <Form.Control
+            value={userType}
+            onChange={handleChange}
+            as="select"
+            custom
+            id="userType"
+          >
+            <option value="">----</option>
+            <option value="normal">Normal</option>
+            <option value="staff">Staff</option>
+            <option value="associate">Associate</option>
+            <option value="partner">Partner</option>
+            <option value="admin">Admin</option>
           </Form.Control>
-        </Form.Group>
-
-        <Form.Group controlId="formBasicEmail">
-          <Form.Label>Salutation</Form.Label>
-          <Form.Control type="text" placeholder="Enter salutation" />
         </Form.Group>
 
         <Form.Group controlId="formBasicEmail">
           <Form.Label>First Name</Form.Label>
-          <Form.Control type="text" placeholder="Enter first name" />
-        </Form.Group>
-
-        <Form.Group controlId="formBasicEmail">
-          <Form.Label>Middle Name</Form.Label>
-          <Form.Control type="text" placeholder="Enter middle name" />
+          <Form.Control
+            id="firstName"
+            value={firstName}
+            onChange={handleChange}
+            type="text"
+            placeholder="Enter first name"
+          />
         </Form.Group>
 
         <Form.Group controlId="formBasicEmail">
           <Form.Label>Last Name</Form.Label>
-          <Form.Control type="text" placeholder="Enter last name" />
+          <Form.Control
+            id="lastName"
+            value={lastName}
+            onChange={handleChange}
+            type="text"
+            placeholder="Enter last name"
+          />
         </Form.Group>
 
         <Form.Group controlId="exampleForm.SelectCustom">
           <Form.Label>Gender</Form.Label>
-          <Form.Control as="select" custom>
-            <option>----</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Rather not say</option>
-          </Form.Control>
-        </Form.Group>
-
-        <Form.Group controlId="exampleForm.SelectCustom">
-          <Form.Label>Marital Status</Form.Label>
-          <Form.Control as="select" custom>
-            <option>----</option>
-            <option>Single</option>
-            <option>Married</option>
-            <option>Divorced</option>
-            <option>Rather not say</option>
+          <Form.Control value={gender} onChange={handleChange} as="select" id="gender" custom>
+            <option value="">----</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="not-defined">Rather not say</option>
           </Form.Control>
         </Form.Group>
 
@@ -60,6 +84,9 @@ const PersonalInformation = () => {
           <Form.Label>Primary Email</Form.Label>
           <Form.Control
             type="email"
+            id="email"
+            onChange={handleChange}
+            value={email}
             placeholder="Enter primary email address"
           />
           <Form.Text className="text-muted">
@@ -68,58 +95,72 @@ const PersonalInformation = () => {
         </Form.Group>
 
         <Form.Group controlId="formBasicEmail">
-          <Form.Label>Alternate Email</Form.Label>
+          <Form.Label>Password</Form.Label>
           <Form.Control
-            type="email"
-            placeholder="Enter alternate email address"
+            type="password"
+            id="password"
+            onChange={handleChange}
+            value={password}
+            placeholder="Enter password"
           />
-          <Form.Text className="text-muted">
-            We'll never share your email with anyone else.
-          </Form.Text>
         </Form.Group>
 
         <Form.Group controlId="formBasicEmail">
           <Form.Label>Primary Phone Number</Form.Label>
-          <Form.Control type="text" placeholder="Enter primary phone number" />
-          <Form.Text className="text-muted">
-            We'll never share your phone number with anyone else.
-          </Form.Text>
-        </Form.Group>
-
-        <Form.Group controlId="formBasicEmail">
-          <Form.Label>Alternate Phone Number</Form.Label>
           <Form.Control
+            id="phoneNumber"
             type="text"
-            placeholder="Enter alternate phone number"
+            onChange={handleChange}
+            value={phoneNumber}
+            placeholder="Enter primary phone number"
           />
           <Form.Text className="text-muted">
             We'll never share your phone number with anyone else.
           </Form.Text>
         </Form.Group>
 
-        <Form.Group controlId="exampleForm.SelectCustom">
+        <Form.Group controlId="formBasicEmail">
           <Form.Label>Nationality</Form.Label>
-          <Form.Control as="select" custom>
-            <option>----</option>
-            <option>India</option>
-            <option>USA</option>
-            <option>Austra</option>
-          </Form.Control>
+          <Form.Control
+            id="nationality"
+            onChange={handleChange}
+            type="text"
+            value={nationality}
+            placeholder="Enter nationality"
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formBasicEmail">
+          <Form.Label>Date of birth</Form.Label>
+          <Form.Control
+            id="dob"
+            onChange={handleChange}
+            type="date"
+            value={dob}
+            placeholder="Enter date of birth"
+          />
         </Form.Group>
 
         <Form.Group controlId="formBasicEmail">
           <Form.Label>PAN Number</Form.Label>
-          <Form.Control type="text" placeholder="Enter PAN Number" />
+          <Form.Control
+            value={pan}
+            onChange={handleChange}
+            id="pan"
+            type="text"
+            placeholder="Enter PAN Number"
+          />
         </Form.Group>
 
         <Form.Group controlId="formBasicEmail">
           <Form.Label>Aadhar Number</Form.Label>
-          <Form.Control type="text" placeholder="Enter Aadhar Number" />
-        </Form.Group>
-
-        <Form.Group controlId="formBasicEmail">
-          <Form.Label>Profile Photo</Form.Label>
-          <Form.File id="custom-file" />
+          <Form.Control
+            id="aadhar"
+            onChange={handleChange}
+            type="text"
+            placeholder="Enter Aadhar Number"
+            value={aadhar}
+          />
         </Form.Group>
       </Form>
     </>

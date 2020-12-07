@@ -7,41 +7,42 @@ import Swal from 'sweetalert2';
 import FuzzySearch from 'fuzzy-search';
 import { useClient } from '../../../client';
 import { useCookies } from 'react-cookie';
-import { GET_ALL_APPLICATIONS_QUERY } from '../../../graphql/queries';
-import ViewApplication from "./ViewApplication";
+import { GET_ALL_LEADS_QUERY } from '../../../graphql/queries';
+import ViewLeads from "./ViewLeads";
 
 import Aux from "../../../Admin/hoc/_Aux";
 import { ContactSupportOutlined } from '@material-ui/icons';
+import { get } from 'jquery';
 
-var applications = [];
+var leads = [];
 
-const Application = () =>  {
+const BankLeads = () =>  {
     const client = useClient();
     const [cookies, removeCookie] = useCookies(['user']);
-    const [application, setApplication] = useState([]);
+    const [lead, setLead] = useState([]);
     const [search, setSearch] = useState('');
     const [isLoading, setLoading] = useState('loading');
     const [show, setShow] = useState(false);
     const [showView, setShowView] = useState(false);
-    const [applicationId, setApplicationId] = useState('');
+    const [leadId, setLeadId] = useState('');
 
 
     const handleCloseShow = () => {
         setShowView(false);
-        setApplicationId('');
+        setLeadId('');
     }
     const handleShowView = (event, value) => {
         setShowView(true);
-        setApplicationId(value);
+        setLeadId(value);
     }
     
 
-    const getApplicationsRequest = async e => {
+    const getLeadsRequest = async e => {
     try {
-        const application = await client.request(GET_ALL_APPLICATIONS_QUERY);
-
-        setApplication(application.getAllApplicationsRequest);
-        console.log(application);
+        const getAllLeads = await client.request(GET_ALL_LEADS_QUERY);
+        console.log(getAllLeads);
+        setLead(getAllLeads.getAllLeads);
+        console.log(lead+"test");
         setLoading('');
     } catch (err) {
         console.log(err);
@@ -49,19 +50,17 @@ const Application = () =>  {
     }
     };
     const Get = () => {
-    if (isLoading == 'loading') getApplicationsRequest();
+    if (isLoading == 'loading') getLeadsRequest();
     };
     const Details = () => {
     const card = [];
-    
-    for (let i = 0; i < application.length; i++) {
-        var theDate = new Date(application[i].appliedAt/1);
-        var dateString = theDate.toGMTString();
 
+    for (let i = 0; i < lead.length; i++) {
         var data = {};
         data['id'] = i;
+        
 
-        applications.push(data);
+        leads.push(data);
 
         card.push(
         <tr>
@@ -74,43 +73,35 @@ const Application = () =>  {
             </td>
             <td>
             {' '}
-            {dateString}
+            {lead[i].leadId}{' '}
             </td>
             <td>
             {' '}
-            {dateString}
+            {lead[i].date}{' '}
             </td>
             <td>
             {' '}
-            {application[i].applicationNumber}{' '}
+            {lead[i].dateOfApply}{' '}
             </td>
             <td>
             {' '}
-            {application[i].type}
+            {lead[i].updateDate}{' '}
             </td>
             <td>
             {' '}
-            {application[i].personalDetails.firstName}{' '}{application[i].personalDetails.lastName}{' '}
+            {lead[i].refererId}{' '}
             </td>
             <td>
             {' '}
-            {i+1000}
+            {lead[i].name}{' '}
             </td>
             <td>
             {' '}
-            {application[i].loanDetails.loanAmount}{' '}
+            {lead[i].loanType}{' '}
             </td>
             <td>
             {' '}
-            {application[i].bankName}{' '}
-            </td>
-            <td>
-            {' '}
-            {application[i].reviewStatus}
-            </td>
-            <td>
-            {' '}
-            FBrep {i}
+            {lead[i].amount}{' '}
             </td>
             <td>
             {' '}
@@ -128,13 +119,13 @@ const Application = () =>  {
                         <Card>
                             <Card.Header>
                             
-                                <Card.Title as="h5">Application Management</Card.Title>
-                                <span className="d-block m-t-5">Easily manage applications here.</span>
+                                <Card.Title as="h5">Leads Management</Card.Title>
+                                <span className="d-block m-t-5">Easily manage leads here.</span>
                                 <ReactHTMLTableToExcel
                                 className="float-right btn btn-success"
                                 table="table-to-xls"
-                                filename="fundboon-applications"
-                                sheet="fundboon-applications"
+                                filename="fundboon-leads"
+                                sheet="fundboon-leads"
                                 buttonText="Download as Excel"/>
                                 <Col md={4} className="float-right">
                                     <Form.Control type="text" placeholder="Search" className="mb-3" />
@@ -144,11 +135,11 @@ const Application = () =>  {
 
                             <Modal show={showView} onHide={handleCloseShow} size="lg">
                                 <Modal.Header closeButton>
-                                <Modal.Title>View Application</Modal.Title>
+                                <Modal.Title>View Leads Details</Modal.Title>
                                 </Modal.Header>
                                 
                                 <Modal.Body>
-                                <ViewApplication {...applications[applicationId]} />
+                                <ViewLeads {...leads[leadId]} />
                                 </Modal.Body>
                                 <Modal.Footer>
                                 <Button variant="secondary" onClick={handleCloseShow}>
@@ -162,16 +153,14 @@ const Application = () =>  {
                                     <tr>
                                         <th>Select</th>
                                         <th>Sr.No.</th>
-                                        <th>Applied Date</th>
-                                        <th>Updated Date</th>
-                                        <th>Application Number</th>
-                                        <th>Product Type</th>
-                                        <th>Customer Name</th>
-                                        <th>Associate ID</th>
+                                        <th>Lead ID</th>
+                                        <th>Created Date</th>
+                                        <th>Date of Apply</th>
+                                        <th>Updated Dated</th>
+                                        <th>Referer ID</th>
+                                        <th>Name of the Lead</th>
+                                        <th>Product Name of interest</th>
                                         <th>Loan Amount</th>
-                                        <th>Bank Name</th>
-                                        <th>Status</th>
-                                        <th>FB Rep</th>
                                         <th>Actions</th>
                                     </tr>
                                     </thead>
@@ -190,4 +179,4 @@ const Application = () =>  {
         );
     }
 
-export default Application;
+export default BankLeads;

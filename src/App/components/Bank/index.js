@@ -7,41 +7,41 @@ import Swal from 'sweetalert2';
 import FuzzySearch from 'fuzzy-search';
 import { useClient } from '../../../client';
 import { useCookies } from 'react-cookie';
-import { GET_ALL_APPLICATIONS_QUERY } from '../../../graphql/queries';
-import ViewApplication from "./ViewApplication";
+import { GET_ALL_PRODUCTS_QUERY } from '../../../graphql/queries';
+import ViewBank from "./ViewBank";
 
 import Aux from "../../../Admin/hoc/_Aux";
 import { ContactSupportOutlined } from '@material-ui/icons';
+import { get } from 'jquery';
 
-var applications = [];
+var products = [];
 
-const Application = () =>  {
+const Bank = () =>  {
     const client = useClient();
     const [cookies, removeCookie] = useCookies(['user']);
-    const [application, setApplication] = useState([]);
+    const [product, setProduct] = useState([]);
     const [search, setSearch] = useState('');
     const [isLoading, setLoading] = useState('loading');
     const [show, setShow] = useState(false);
     const [showView, setShowView] = useState(false);
-    const [applicationId, setApplicationId] = useState('');
+    const [productId, setProductId] = useState('');
 
 
     const handleCloseShow = () => {
         setShowView(false);
-        setApplicationId('');
+        setProductId('');
     }
     const handleShowView = (event, value) => {
         setShowView(true);
-        setApplicationId(value);
+        setProductId(value);
     }
     
 
-    const getApplicationsRequest = async e => {
+    const getProductsRequest = async e => {
     try {
-        const application = await client.request(GET_ALL_APPLICATIONS_QUERY);
-
-        setApplication(application.getAllApplicationsRequest);
-        console.log(application);
+        const getAllProducts = await client.request(GET_ALL_PRODUCTS_QUERY);
+        setProduct(getAllProducts.getAllProducts);
+        console.log(product);
         setLoading('');
     } catch (err) {
         console.log(err);
@@ -49,19 +49,17 @@ const Application = () =>  {
     }
     };
     const Get = () => {
-    if (isLoading == 'loading') getApplicationsRequest();
+    if (isLoading == 'loading') getProductsRequest();
     };
     const Details = () => {
     const card = [];
-    
-    for (let i = 0; i < application.length; i++) {
-        var theDate = new Date(application[i].appliedAt/1);
-        var dateString = theDate.toGMTString();
 
+    for (let i = 0; i < product.length; i++) {
         var data = {};
         data['id'] = i;
+        
 
-        applications.push(data);
+        products.push(data);
 
         card.push(
         <tr>
@@ -74,43 +72,27 @@ const Application = () =>  {
             </td>
             <td>
             {' '}
-            {dateString}
+            {product[i].fbBankCode}{' '}
             </td>
             <td>
             {' '}
-            {dateString}
+            {product[i].bankName}{' '}
             </td>
             <td>
             {' '}
-            {application[i].applicationNumber}{' '}
+            {product[i].bankCode}{' '}
             </td>
             <td>
             {' '}
-            {application[i].type}
+            {product[i].fbProductCode}{' '}
             </td>
             <td>
             {' '}
-            {application[i].personalDetails.firstName}{' '}{application[i].personalDetails.lastName}{' '}
+            {product[i].productName}{' '}
             </td>
             <td>
             {' '}
-            {i+1000}
-            </td>
-            <td>
-            {' '}
-            {application[i].loanDetails.loanAmount}{' '}
-            </td>
-            <td>
-            {' '}
-            {application[i].bankName}{' '}
-            </td>
-            <td>
-            {' '}
-            {application[i].reviewStatus}
-            </td>
-            <td>
-            {' '}
-            FBrep {i}
+            {product[i].productCode}{' '}
             </td>
             <td>
             {' '}
@@ -128,13 +110,13 @@ const Application = () =>  {
                         <Card>
                             <Card.Header>
                             
-                                <Card.Title as="h5">Application Management</Card.Title>
-                                <span className="d-block m-t-5">Easily manage applications here.</span>
+                                <Card.Title as="h5">Banks & Services Management</Card.Title>
+                                <span className="d-block m-t-5">Easily manage banks & services here.</span>
                                 <ReactHTMLTableToExcel
                                 className="float-right btn btn-success"
                                 table="table-to-xls"
-                                filename="fundboon-applications"
-                                sheet="fundboon-applications"
+                                filename="fundboon-products"
+                                sheet="fundboon-products"
                                 buttonText="Download as Excel"/>
                                 <Col md={4} className="float-right">
                                     <Form.Control type="text" placeholder="Search" className="mb-3" />
@@ -144,11 +126,11 @@ const Application = () =>  {
 
                             <Modal show={showView} onHide={handleCloseShow} size="lg">
                                 <Modal.Header closeButton>
-                                <Modal.Title>View Application</Modal.Title>
+                                <Modal.Title>View Bank</Modal.Title>
                                 </Modal.Header>
                                 
                                 <Modal.Body>
-                                <ViewApplication {...applications[applicationId]} />
+                                <ViewBank {...products[productId]} />
                                 </Modal.Body>
                                 <Modal.Footer>
                                 <Button variant="secondary" onClick={handleCloseShow}>
@@ -162,16 +144,12 @@ const Application = () =>  {
                                     <tr>
                                         <th>Select</th>
                                         <th>Sr.No.</th>
-                                        <th>Applied Date</th>
-                                        <th>Updated Date</th>
-                                        <th>Application Number</th>
-                                        <th>Product Type</th>
-                                        <th>Customer Name</th>
-                                        <th>Associate ID</th>
-                                        <th>Loan Amount</th>
+                                        <th>Bank ID</th>
                                         <th>Bank Name</th>
-                                        <th>Status</th>
-                                        <th>FB Rep</th>
+                                        <th>Bank Code</th>
+                                        <th>Product ID</th>
+                                        <th>Product Name</th>
+                                        <th>Product Code</th>
                                         <th>Actions</th>
                                     </tr>
                                     </thead>
@@ -190,4 +168,4 @@ const Application = () =>  {
         );
     }
 
-export default Application;
+export default Bank;

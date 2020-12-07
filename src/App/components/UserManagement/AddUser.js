@@ -4,11 +4,11 @@ import PersonalInformation from "./PersonalInformationAdd";
 import ContactInformation from "./ContactInformationAdd";
 import EducationInformation from "./EducationInformationAdd";
 import EmployeeInformation from "./EmploymentInformationAdd";
-import OthersInformation from "./OthersInformationAdd";
 
-const AddUser = () => {
+const AddUser = (props) => {
   const [currentForm, updateCurrentForm] = useState(1);
   const handleSelect = (eventKey) => updateCurrentForm(parseInt(eventKey));
+  const { data, setData, error } = props;
 
   return (
     <>
@@ -38,17 +38,20 @@ const AddUser = () => {
             Employment
           </Nav.Link>
         </Nav.Item>
-        <Nav.Item>
-          <Nav.Link eventKey="5" href="#">
-            Others
-          </Nav.Link>
-        </Nav.Item>
       </Nav>
-      {currentForm === 1 && <PersonalInformation />}
-      {currentForm === 2 && <ContactInformation />}
-      {currentForm === 3 && <EducationInformation />}
-      {currentForm === 4 && <EmployeeInformation />}
-      {currentForm === 5 && <OthersInformation />}
+      {error && <p style={{ textAlign: "center", color: "red" }}>{error}</p>}
+      {currentForm === 1 && (
+        <PersonalInformation data={data} setData={setData} />
+      )}
+      {currentForm === 2 && (
+        <ContactInformation data={data} setData={setData} />
+      )}
+      {currentForm === 3 && (
+        <EducationInformation data={data} setData={setData} />
+      )}
+      {currentForm === 4 && (
+        <EmployeeInformation data={data} setData={setData} />
+      )}
     </>
   );
 };
