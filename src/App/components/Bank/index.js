@@ -8,11 +8,26 @@ import FuzzySearch from 'fuzzy-search';
 import { useClient } from '../../../client';
 import { useCookies } from 'react-cookie';
 import { GET_ALL_PRODUCTS_QUERY } from '../../../graphql/queries';
+import { DELETE_PRODUCT_MUTATION } from "../../../graphql/mutation";
 import ViewBank from "./ViewBank";
+import AddBank from "./AddBank";
 
 import Aux from "../../../Admin/hoc/_Aux";
 import { ContactSupportOutlined } from '@material-ui/icons';
 import { get } from 'jquery';
+
+const selectProducts = () => {
+    const checkboxes = document.querySelectorAll(".checkboxProducts");
+
+    const response = [];
+    checkboxes.forEach((ele) => {
+        const fbProductCode = ele.getAttribute("data-id");
+        if (ele.checked) {
+            response.push(fbProductCode);
+        }
+    });
+    return response;
+};
 
 var products = [];
 
@@ -20,11 +35,15 @@ const Bank = () =>  {
     const client = useClient();
     const [cookies, removeCookie] = useCookies(['user']);
     const [product, setProduct] = useState([]);
-    const [search, setSearch] = useState('');
     const [isLoading, setLoading] = useState('loading');
     const [show, setShow] = useState(false);
     const [showView, setShowView] = useState(false);
     const [productId, setProductId] = useState('');
+
+
+    const [search, setSearch] = useState("");
+    const [productsSelected, setSelectedProducts] = useState([]);
+    const [showDelete, setShowDelete] = useState(false);
 
 
     const handleCloseShow = () => {
@@ -35,13 +54,35 @@ const Bank = () =>  {
         setShowView(true);
         setProductId(value);
     }
+
+    const handleCloseDelete = () => {
+        setShowDelete(false);
+    };
+
+    const handleShowDelete = () => {
+        setSelectedProducts(selectProducts());
+        setShowDelete(true);
+    };
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+    
+    const doDelete = async () => {
+        const data = productsSelected.map((ele) => ({ fbProductCode: ele }));
+        const variables = {
+            productCodes: data,
+        };
+        const response = await client.request(DELETE_PRODUCT_MUTATION, variables);
+        console.log(response);
+        setShowDelete(false);
+        getProductsRequest();
+    };
     
 
     const getProductsRequest = async e => {
     try {
         const getAllProducts = await client.request(GET_ALL_PRODUCTS_QUERY);
         setProduct(getAllProducts.getAllProducts);
-        console.log(product);
         setLoading('');
     } catch (err) {
         console.log(err);
@@ -54,7 +95,17 @@ const Bank = () =>  {
     const Details = () => {
     const card = [];
 
-    for (let i = 0; i < product.length; i++) {
+    const searcher = new FuzzySearch(
+        product,
+        ["fbBankCode", "bankName", "bankCode", "fbProductCode", "productName", "productCode"],
+        {
+            caseSensitive: true,
+        }
+    );
+
+    const result = searcher.search(search);
+
+    for (let i = 0; i < result.length; i++) {
         var data = {};
         data['id'] = i;
         
@@ -64,7 +115,10 @@ const Bank = () =>  {
         card.push(
         <tr>
             <td>
-            <input className="form-control" type="checkbox" />
+            <input 
+            data-id={result[i]._id}
+            className="checkboxProducts"
+            type="checkbox" />
             </td>
             <td scope="row">
             {' '}
@@ -72,27 +126,27 @@ const Bank = () =>  {
             </td>
             <td>
             {' '}
-            {product[i].fbBankCode}{' '}
+            {result[i].fbBankCode}{' '}
             </td>
             <td>
             {' '}
-            {product[i].bankName}{' '}
+            {result[i].bankName}{' '}
             </td>
             <td>
             {' '}
-            {product[i].bankCode}{' '}
+            {result[i].bankCode}{' '}
             </td>
             <td>
             {' '}
-            {product[i].fbProductCode}{' '}
+            {result[i].fbProductCode}{' '}
             </td>
             <td>
             {' '}
-            {product[i].productName}{' '}
+            {result[i].productName}{' '}
             </td>
             <td>
             {' '}
-            {product[i].productCode}{' '}
+            {result[i].productCode}{' '}
             </td>
             <td>
             {' '}
@@ -118,8 +172,20 @@ const Bank = () =>  {
                                 filename="fundboon-products"
                                 sheet="fundboon-products"
                                 buttonText="Download as Excel"/>
+                                <Button
+                                    className="float-right"
+                                    variant="secondary"
+                                    onClick={handleShow}
+                                >
+                                    New Product
+                                </Button>
                                 <Col md={4} className="float-right">
-                                    <Form.Control type="text" placeholder="Search" className="mb-3" />
+                                    <Form.Control 
+                                    type="text" 
+                                    placeholder="Search" 
+                                    value={search}
+                                    onChange={(event) => setSearch(event.target.value)}
+                                    className="mb-3" />
                                 </Col>
                             </Card.Header>
                             <Card.Body>
@@ -134,6 +200,37 @@ const Bank = () =>  {
                                 </Modal.Body>
                                 <Modal.Footer>
                                 <Button variant="secondary" onClick={handleCloseShow}>
+                                    Close
+                                </Button>
+                                </Modal.Footer>
+                            </Modal>
+
+                            <Modal show={showDelete} onHide={handleCloseDelete}>
+                                <Modal.Header closeButton>
+                                <Modal.Title>Confirm Deletion</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                Are you sure you want to delete the selected products ?
+                                </Modal.Body>
+                                <Modal.Footer>
+                                <Button variant="secondary" onClick={handleCloseDelete}>
+                                    Close
+                                </Button>
+                                <Button variant="primary" onClick={doDelete}>
+                                    Confirm
+                                </Button>
+                                </Modal.Footer>
+                            </Modal>
+
+                            <Modal show={show} onHide={handleClose} size="lg">
+                                <Modal.Header closeButton>
+                                <Modal.Title>Add Product</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                <AddBank />
+                                </Modal.Body>
+                                <Modal.Footer>
+                                <Button variant="secondary" onClick={handleClose}>
                                     Close
                                 </Button>
                                 </Modal.Footer>
@@ -158,7 +255,7 @@ const Bank = () =>  {
                                     </tbody>
                                 </Table>
                                 <br />
-                                <Button className="float-right" variant="danger" onClick={() => {alert('To be added.')}}>Delete</Button>
+                                <Button className="float-right" variant="danger" onClick={handleShowDelete}>Delete</Button>
                             </Card.Body>
                             
                         </Card>

@@ -14,6 +14,18 @@ export const DELETE_MUTATION = `
   }
 `;
 
+export const DELETE_APPLICATION_MUTATION = `
+  mutation($applicationNumbers: [ApplicationNumbers]){
+    deleteApplication(input: $applicationNumbers)
+  }
+`;
+
+export const DELETE_PRODUCT_MUTATION = `
+  mutation($productCodes: [ProductCodes]){
+    deleteProduct(input: $productCodes)
+  }
+`;
+
 export const DEACTIVATE_MUTATION = `
   mutation($ids: [UserID]){
     deactivateUser(input: $ids)
@@ -265,6 +277,66 @@ export const UPDATE_PRODUCT_DATA = `
     }){
       _id
     }
+  }
+`;
+
+export const ADD_PRODUCT_DATA = `
+  mutation(
+    $bankName: String,
+    $bankCode: String,
+    $fbBankCode: String,
+    $productName: String,
+    $productCode: String,
+    $fbProductCode: String,
+    $minAge: Float,
+    $maxAge: Float,
+    $minIncome: Float,
+    $minLoanAmount: Float,
+    $maxLoanAmount: Float,
+    $minLoanRatio: Float,
+    $maxLoanRatio: Float,
+    $minLoanTenure: Float,
+    $maxLoanTenure: Float,
+    $minInterestRateMen: Float,
+    $minInterestRateWomen: Float,
+    $minProcessingFee: Float,
+    $minPreclosureCharge: Float,
+    $maxPreclosureCharge: Float,
+    $fbProcessingFee: Float,
+    $minProcessingFeeSlab: Float,
+    $maxProcessingFeeSlab: Float,
+    $coApplicantMaxEMI: Float,
+    $coApplicantMinAge: Float,
+    $coApplicantMinSalary: Float
+		) {
+    addProductData(input:{
+      bankName: $bankName,
+      bankCode: $bankCode,
+      fbBankCode: $fbBankCode,
+      productName: $productName,
+      productCode: $productCode,
+      fbProductCode: $fbProductCode,
+      minAge: $minAge,
+      maxAge: $maxAge,
+      minIncome: $minIncome,
+      minLoanAmount: $minLoanAmount,
+      maxLoanAmount: $maxLoanAmount,
+      minLoanRatio: $minLoanRatio,
+      maxLoanRatio: $maxLoanRatio,
+      minLoanTenure: $minLoanTenure,
+      maxLoanTenure: $maxLoanTenure,
+      minInterestRateMen: $minInterestRateMen,
+      minInterestRateWomen: $minInterestRateWomen,
+      minProcessingFee: $minProcessingFee,
+      minPreclosureCharge: $minPreclosureCharge,
+      maxPreclosureCharge: $maxPreclosureCharge,
+      fbProcessingFee: $fbProcessingFee,
+      minProcessingFeeSlab: $minProcessingFeeSlab,
+      maxProcessingFeeSlab: $maxProcessingFeeSlab,
+      coApplicantMaxEMI: $coApplicantMaxEMI,
+      coApplicantMinAge: $coApplicantMinAge,
+      coApplicantMinSalary: $coApplicantMinSalary
+    })
   }
 `;
 

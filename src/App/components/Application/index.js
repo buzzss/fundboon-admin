@@ -8,10 +8,24 @@ import FuzzySearch from 'fuzzy-search';
 import { useClient } from '../../../client';
 import { useCookies } from 'react-cookie';
 import { GET_ALL_APPLICATIONS_QUERY } from '../../../graphql/queries';
+import { DELETE_APPLICATION_MUTATION } from "../../../graphql/mutation";
 import ViewApplication from "./ViewApplication";
 
 import Aux from "../../../Admin/hoc/_Aux";
 import { ContactSupportOutlined } from '@material-ui/icons';
+  
+const selectApplications = () => {
+    const checkboxes = document.querySelectorAll(".checkboxApplications");
+
+    const response = [];
+    checkboxes.forEach((ele) => {
+        const applicationNumber = ele.getAttribute("data-id");
+        if (ele.checked) {
+            response.push(applicationNumber);
+        }
+    });
+    return response;
+};
 
 var applications = [];
 
@@ -19,12 +33,14 @@ const Application = () =>  {
     const client = useClient();
     const [cookies, removeCookie] = useCookies(['user']);
     const [application, setApplication] = useState([]);
-    const [search, setSearch] = useState('');
     const [isLoading, setLoading] = useState('loading');
     const [show, setShow] = useState(false);
     const [showView, setShowView] = useState(false);
     const [applicationId, setApplicationId] = useState('');
 
+    const [search, setSearch] = useState("");
+    const [applicationsSelected, setSelectedApplications] = useState([]);
+    const [showDelete, setShowDelete] = useState(false);
 
     const handleCloseShow = () => {
         setShowView(false);
@@ -34,28 +50,61 @@ const Application = () =>  {
         setShowView(true);
         setApplicationId(value);
     }
+
+    const handleCloseDelete = () => {
+        setShowDelete(false);
+    };
+
+    const handleShowDelete = () => {
+        setSelectedApplications(selectApplications());
+        setShowDelete(true);
+    };
+    
+    const doDelete = async () => {
+        const data = applicationsSelected.map((ele) => ({ applicationNumber: ele }));
+        const variables = {
+            applicationNumbers: data,
+        };
+        const response = await client.request(DELETE_APPLICATION_MUTATION, variables);
+        console.log(response);
+        setShowDelete(false);
+        getApplicationsRequest();
+    };
+    
+      
     
 
     const getApplicationsRequest = async e => {
-    try {
-        const application = await client.request(GET_ALL_APPLICATIONS_QUERY);
+        try {
+            const application = await client.request(GET_ALL_APPLICATIONS_QUERY);
 
-        setApplication(application.getAllApplicationsRequest);
-        console.log(application);
-        setLoading('');
-    } catch (err) {
-        console.log(err);
-        setLoading('');
-    }
+            setApplication(application.getAllApplicationsRequest);
+            console.log(application);
+            setLoading('');
+        } catch (err) {
+            console.log(err);
+            setLoading('');
+        }
     };
     const Get = () => {
     if (isLoading == 'loading') getApplicationsRequest();
     };
     const Details = () => {
+
+    const searcher = new FuzzySearch(
+        application,
+        ["personalDetails.firstName", "personalDetails.lastName", "applicationNumber", "loanDetails.loanAmount", "bankName", "reviewStatus", "type"],
+        {
+            caseSensitive: false,
+        }
+    );
+
+    const result = searcher.search(search);
+
     const card = [];
     
-    for (let i = 0; i < application.length; i++) {
-        var theDate = new Date(application[i].appliedAt/1);
+    for (let i = 0; i < result.length; i++) {
+        var theDate = new Date(result[i].appliedAt/1);
         var dateString = theDate.toGMTString();
 
         var data = {};
@@ -66,7 +115,10 @@ const Application = () =>  {
         card.push(
         <tr>
             <td>
-            <input className="form-control" type="checkbox" />
+            <input 
+            data-id={result[i].applicationNumber}
+            className="checkboxApplications"
+            type="checkbox" />
             </td>
             <td scope="row">
             {' '}
@@ -82,15 +134,15 @@ const Application = () =>  {
             </td>
             <td>
             {' '}
-            {application[i].applicationNumber}{' '}
+            {result[i].applicationNumber}{' '}
             </td>
             <td>
             {' '}
-            {application[i].type}
+            {result[i].type}
             </td>
             <td>
             {' '}
-            {application[i].personalDetails.firstName}{' '}{application[i].personalDetails.lastName}{' '}
+            {result[i].personalDetails.firstName}{' '}{result[i].personalDetails.lastName}{' '}
             </td>
             <td>
             {' '}
@@ -98,15 +150,15 @@ const Application = () =>  {
             </td>
             <td>
             {' '}
-            {application[i].loanDetails.loanAmount}{' '}
+            {result[i].loanDetails.loanAmount}{' '}
             </td>
             <td>
             {' '}
-            {application[i].bankName}{' '}
+            {result[i].bankName}{' '}
             </td>
             <td>
             {' '}
-            {application[i].reviewStatus}
+            {result[i].reviewStatus}
             </td>
             <td>
             {' '}
@@ -137,7 +189,12 @@ const Application = () =>  {
                                 sheet="fundboon-applications"
                                 buttonText="Download as Excel"/>
                                 <Col md={4} className="float-right">
-                                    <Form.Control type="text" placeholder="Search" className="mb-3" />
+                                    <Form.Control 
+                                    type="text" 
+                                    placeholder="Search" 
+                                    className="mb-3"
+                                    value={search}
+                                    onChange={(event) => setSearch(event.target.value)} />
                                 </Col>
                             </Card.Header>
                             <Card.Body>
@@ -153,6 +210,23 @@ const Application = () =>  {
                                 <Modal.Footer>
                                 <Button variant="secondary" onClick={handleCloseShow}>
                                     Close
+                                </Button>
+                                </Modal.Footer>
+                            </Modal>
+
+                            <Modal show={showDelete} onHide={handleCloseDelete}>
+                                <Modal.Header closeButton>
+                                <Modal.Title>Confirm Deletion</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                Are you sure you want to delete the selected applications ?
+                                </Modal.Body>
+                                <Modal.Footer>
+                                <Button variant="secondary" onClick={handleCloseDelete}>
+                                    Close
+                                </Button>
+                                <Button variant="primary" onClick={doDelete}>
+                                    Confirm
                                 </Button>
                                 </Modal.Footer>
                             </Modal>
@@ -180,7 +254,7 @@ const Application = () =>  {
                                     </tbody>
                                 </Table>
                                 <br />
-                                <Button className="float-right" variant="danger" onClick={() => {alert('To be added.')}}>Delete</Button>
+                                <Button className="float-right" variant="danger" onClick={handleShowDelete}>Delete</Button>
                             </Card.Body>
                             
                         </Card>

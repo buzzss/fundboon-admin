@@ -118,6 +118,7 @@ export const GET_ALL_APPLICATIONS_QUERY = `
 export const GET_ALL_PRODUCTS_QUERY = `
   query {
     getAllProducts {
+		_id
 		bankName
 		bankCode
 		fbBankCode

@@ -17,6 +17,7 @@ import ViewUser from "./ViewUser";
 import Swal from "sweetalert2";
 import FuzzySearch from "fuzzy-search";
 import { useClient } from "../../../client";
+import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 import { useCookies } from "react-cookie";
 import { getAllUsersForAdmin } from "../../../graphql/queries";
 import {
@@ -301,6 +302,12 @@ const UserManagement = () => {
             <Card.Header>
               <Card.Title as="h5">User Management</Card.Title>
               <span className="d-block m-t-5">Easily manage users here.</span>
+              <ReactHTMLTableToExcel
+              className="float-right btn btn-success"
+              table="table-to-xls"
+              filename="fundboon-users"
+              sheet="fundboon-users"
+              buttonText="Download as Excel"/>
               <Button
                 className="float-right"
                 variant="secondary"
@@ -384,7 +391,7 @@ const UserManagement = () => {
               </Col>
             </Card.Header>
             <Card.Body>
-              <Table responsive hover>
+              <Table responsive hover id="table-to-xls">
                 <thead>
                   <tr>
                     <th>Select</th>
