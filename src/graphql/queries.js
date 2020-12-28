@@ -110,7 +110,9 @@ export const GET_ALL_APPLICATIONS_QUERY = `
 	  }
       appliedAt
       applicationComplete
-      reviewStatus
+	  reviewStatus
+	  adminStatus
+	  adminComments
     }
   }
 `;
@@ -316,7 +318,22 @@ export const GET_USER_APPLICATION_QUERY = `
 	  }
       appliedAt
       applicationComplete
-      reviewStatus
+	  reviewStatus
+	  adminStatus
+	  adminComments
     }
+  }
+`;
+
+export const GET_TRANSACTIONLOG_QUERY = `
+  query($applicationId: String!) {
+	getTransactionLogs(applicationId: $applicationId) {
+		applicationId
+		bankName
+		request
+		response
+		timeStamp
+		endPoint
+	}
   }
 `;

@@ -5,6 +5,8 @@ import AddressDetails from "./AddressDetailsView";
 import EmploymentDetails from "./EmploymentDetailsView";
 import LoanDetails from "./LoanDetailsView";
 import BankDetails from "./BankDetailsView";
+import UploadDocuments from "./UploadDocuments";
+import AdminInfo from "./AdminInfo";
 
 const ViewApplication = props => {
   const [currentForm, updateCurrentForm] = useState(1);
@@ -43,12 +45,24 @@ const ViewApplication = props => {
             Bank Details
           </Nav.Link>
         </Nav.Item>
+        <Nav.Item>
+          <Nav.Link eventKey="6" href="#">
+            Upload Documents
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link eventKey="7" href="#">
+            Admin
+          </Nav.Link>
+        </Nav.Item>
       </Nav>
       {currentForm === 1 && <PersonalDetails {...props} />}
       {currentForm === 2 && <AddressDetails {...props} />}
       {currentForm === 3 && <EmploymentDetails {...props} />}
       {currentForm === 4 && <LoanDetails {...props} />}
       {currentForm === 5 && <BankDetails {...props} />}
+      {currentForm === 6 && <UploadDocuments {...props} />}
+      {currentForm === 7 && <AdminInfo {...props} />}
     </>
   );
 };
