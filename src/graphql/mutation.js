@@ -218,6 +218,14 @@ export const UPDATE_APPLICATION_DATA = `
   }
 `;
 
+export const UPDATE_ADMIN_APPLICATION_DATA = `
+mutation($applicationNumber: String, $adminStatus: String, $adminComments: String, $files: Files){
+  adminSaveApplication(applicationNumber: $applicationNumber, adminStatus: $adminStatus, adminComments: $adminComments, files: $files) {
+    _id
+  }
+}
+`;
+
 export const UPDATE_PRODUCT_DATA = `
   mutation(
     $bankName: String,

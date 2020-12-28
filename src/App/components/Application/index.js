@@ -37,6 +37,7 @@ const Application = () =>  {
     const [show, setShow] = useState(false);
     const [showView, setShowView] = useState(false);
     const [applicationId, setApplicationId] = useState('');
+    const [viewApplication, setViewApplication] = useState(null);
 
     const [search, setSearch] = useState("");
     const [applicationsSelected, setSelectedApplications] = useState([]);
@@ -46,9 +47,10 @@ const Application = () =>  {
         setShowView(false);
         setApplicationId('');
     }
-    const handleShowView = (event, value) => {
+    const handleShowView = (event, value, application) => {
         setShowView(true);
         setApplicationId(value);
+        setViewApplication(application);
     }
 
     const handleCloseDelete = () => {
@@ -166,7 +168,7 @@ const Application = () =>  {
             </td>
             <td>
             {' '}
-            <Button onClick={(event) => handleShowView(event, i)}>View</Button>
+            <Button onClick={(event) => handleShowView(event, i, result[i])}>View</Button>
             </td>
         </tr>
         );
@@ -199,13 +201,13 @@ const Application = () =>  {
                             </Card.Header>
                             <Card.Body>
 
-                            <Modal show={showView} onHide={handleCloseShow} size="lg">
+                            <Modal show={showView} onHide={handleCloseShow} size="xl">
                                 <Modal.Header closeButton>
                                 <Modal.Title>View Application</Modal.Title>
                                 </Modal.Header>
                                 
                                 <Modal.Body>
-                                <ViewApplication {...applications[applicationId]} />
+                                <ViewApplication viewApplication={viewApplication} {...applications[applicationId]} />
                                 </Modal.Body>
                                 <Modal.Footer>
                                 <Button variant="secondary" onClick={handleCloseShow}>
