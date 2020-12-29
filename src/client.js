@@ -12,7 +12,7 @@ export const WS_URL =
 export const FILE_UPLOAD_URL =
     process.env.NODE_ENV === 'production'
       ? '/api/fullerton/file-upload'
-      : 'http://localhost:5000/uploaddocuments';
+      : 'https://www.fundboon.com/api/fullerton/file-upload';
 
 export const FULLERTON_APPLY_URL =
   process.env.NODE_ENV === 'production'
