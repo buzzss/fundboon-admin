@@ -21,23 +21,35 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Snackbar from '@material-ui/core/Snackbar';
 import { UPDATE_ADMIN_APPLICATION_DATA } from '../../../graphql/mutation';
 import { FILE_UPLOAD_URL, useClient } from '../../../client';
-// import axios, { post } from 'axios';
+import { post } from 'axios';
 
 const UploadDocuments = props => {
     const client = useClient();
-    const [documentType, setDocumentType] = useState("address_proof");
+    const [documentType, setDocumentType] = useState("");
     const [files, setFiles] = useState([]);
     const [uploading, setUploading] = useState(false);;
     const [uploadResponse, setUploadResponse] = useState({});
 
     const documentTypes = [
-        { value: "address_proof", label: "Address Proof" },
-        { value: "identity_proof", label: "Identity Proof" },
-        { value: "employment_proof", label: "Employment Proof" },
-        { value: "income_proof", label: "Income Proof" },
+        { value: "addressProof", label: "Address Proof" },
+        { value: "identityProof", label: "Identity Proof" },
+        { value: "employmentProof", label: "Employment Proof" },
+        { value: "incomeProof", label: "Income Proof" },
     ];
 
     const getDocumentDetail = (type) => documentTypes.find(item => item.value === type);
+
+    if (!files.length && props.viewApplication.files && Object.keys(props.viewApplication.files).length) {
+        let tempFiles = [];
+        Object.keys(props.viewApplication.files).forEach(key => {
+            if (props.viewApplication.files[key]) {
+                tempFiles.push({ ...getDocumentDetail(key), previousUpload: true, fileName: props.viewApplication.files[key], file: props.viewApplication.files[key], filePreview: `/filepreview/${props.viewApplication.applicationNumber}/${key}` })
+            } else if (!documentType) {
+                setDocumentType(key)
+            }
+        })
+        setFiles(tempFiles);
+    }
 
     const fileInputRef = createRef();
     const handleSubmit = async e => {
@@ -110,10 +122,12 @@ const UploadDocuments = props => {
     const fileUpload = async () => {
         setUploading(true);
         const formData = new FormData();
-        files.forEach(({ value, file }) => {
-            console.log(file)
-            formData.append(value, file);
-        })
+        formData.append("applicationId", props.viewApplication.applicationNumber)
+        files.forEach(({ value, file, previousUpload }) => {
+            if (!previousUpload) {
+                formData.append(value, file);
+            }
+        });
         //formData.append("targetFolder", "XTYS1234489");
         const config = {
             withCredentials: true,
@@ -123,15 +137,15 @@ const UploadDocuments = props => {
                 'targetfolder': 'XTYS1234489'
             }
         }
-        // post(FILE_UPLOAD_URL, formData, config)
-        //     .then(response => {
-        //         setUploading(false);
-        //         setUploadResponse({ success: true, message: 'Documents Uploaded Successfully!' });
-        //     }).catch(error => {
-        //         setUploading(false);
-        //         //setUploadResponse({ success: false, message: 'Error in uploading documents, please try again later' });
-        //         setUploadResponse({ success: true, message: 'Documents Uploaded Successfully!' });
-        //     });
+        post(FILE_UPLOAD_URL, formData, config)
+            .then(response => {
+                setUploading(false);
+                handleSaveApplication();
+                setUploadResponse({ success: true, message: 'Documents Uploaded Successfully!' });
+            }).catch(error => {
+                setUploading(false);
+                setUploadResponse({ success: false, message: 'Error in uploading documents, please try again later' });
+            });
         // const request = new XMLHttpRequest();
         // request.open("POST", FILE_UPLOAD_URL);
         // request.send(formData);
@@ -145,8 +159,7 @@ const UploadDocuments = props => {
         //         }
         //     }
         // }
-        handleSaveApplication();
-        setUploading(false);
+
     }
 
     const closeToast = () => setUploadResponse({});

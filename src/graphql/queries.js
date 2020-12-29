@@ -113,6 +113,12 @@ export const GET_ALL_APPLICATIONS_QUERY = `
 	  reviewStatus
 	  adminStatus
 	  adminComments
+	  files {
+		addressProof
+  		identityProof
+  		employmentProof
+  		incomeProof
+	  }
     }
   }
 `;
@@ -321,6 +327,12 @@ export const GET_USER_APPLICATION_QUERY = `
 	  reviewStatus
 	  adminStatus
 	  adminComments
+	  files {
+		addressProof
+  		identityProof
+  		employmentProof
+  		incomeProof
+	  }
     }
   }
 `;
