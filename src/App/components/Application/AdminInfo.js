@@ -26,8 +26,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Snackbar from '@material-ui/core/Snackbar';
 import { GET_TRANSACTIONLOG_QUERY } from '../../../graphql/queries';
 import { UPDATE_ADMIN_APPLICATION_DATA } from '../../../graphql/mutation';
-import { useClient } from '../../../client';
-// import { post, get } from 'axios';
+import { FULLERTON_APPLY_URL, useClient } from '../../../client';
+import { post } from 'axios';
 
 const AdminInfo = props => {
 	const client = useClient();
@@ -89,16 +89,15 @@ const AdminInfo = props => {
 		// 		'Content-Type': 'x-www-form-urlencoded'
 		// 	 }
 		// })
-		// post(`${FULLERTON_APPLY_URL}?applicationId=FBA20200928117`)
-		// .then(response => {
-		//     console.log(response)
-		// 	setApplying(false);
-		// 	setApplyResponse({ success: true, message: 'Applied Successfully!' });
-		// }).catch(error => {
-		// 	setApplying(false);
-		// 	//setApplyResponse({ success: false, message: 'Error in applying, please try again later' });
-		// 	setApplyResponse({ success: true, message: 'Applied Successfully!' });
-		// });
+		post(`${FULLERTON_APPLY_URL}?applicationId=${props.viewApplication.applicationNumber}`, { applicationId: props.viewApplication.applicationNumber })
+			.then(response => {
+				console.log(response)
+				setApplying(false);
+				setApplyResponse({ success: true, message: 'Applied Successfully!' });
+			}).catch(error => {
+				setApplying(false);
+				setApplyResponse({ success: false, message: 'Error in applying, please try again later' });
+			});
 	}
 
 	const closeToast = () => setApplyResponse({});
@@ -172,9 +171,9 @@ const AdminInfo = props => {
 					<TableBody>
 						{transactionLogs && transactionLogs.length && <TableRow>
 							<TableCell>{1}</TableCell>
-							<TableCell>{transactionLogs[transactionLogs.length-1].bankName || 'NA'}</TableCell>
-							<TableCell>{transactionLogs[transactionLogs.length-1].timeStamp || 'NA'}</TableCell>
-							<TableCell>{transactionLogs[transactionLogs.length-1].endPoint || 'NA'}</TableCell>
+							<TableCell>{transactionLogs[transactionLogs.length - 1].bankName || 'NA'}</TableCell>
+							<TableCell>{transactionLogs[transactionLogs.length - 1].timeStamp || 'NA'}</TableCell>
+							<TableCell>{transactionLogs[transactionLogs.length - 1].endPoint || 'NA'}</TableCell>
 							<TableCell>
 								<Link href="#" onClick={() => setOpen(true)} variant="body2">logs</Link>
 							</TableCell>
