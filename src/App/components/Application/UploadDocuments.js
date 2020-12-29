@@ -1,4 +1,4 @@
-import React, { useState, createRef } from 'react';
+import React, { useState, useEffect, createRef } from 'react';
 import classNames from 'classnames';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -38,18 +38,22 @@ const UploadDocuments = props => {
     ];
 
     const getDocumentDetail = (type) => documentTypes.find(item => item.value === type);
-
-    if (!files.length && props.viewApplication.files && Object.keys(props.viewApplication.files).length) {
-        let tempFiles = [];
-        Object.keys(props.viewApplication.files).forEach(key => {
-            if (props.viewApplication.files[key]) {
-                tempFiles.push({ ...getDocumentDetail(key), previousUpload: true, fileName: props.viewApplication.files[key], file: props.viewApplication.files[key], filePreview: `/filepreview/${props.viewApplication.applicationNumber}/${key}` })
-            } else if (!documentType) {
-                setDocumentType(key)
-            }
-        })
-        setFiles(tempFiles);
-    }
+    
+    useEffect(() => {
+        if (files.length === 0) {
+            let tempFiles = [];
+            let _documentType = documentType;
+            Object.keys(props.viewApplication.files).forEach(key => {
+                if (props.viewApplication.files[key]) {
+                    tempFiles.push({ ...getDocumentDetail(key), previousUpload: true, fileName: props.viewApplication.files[key], file: props.viewApplication.files[key], filePreview: `/filepreview/${props.viewApplication.applicationNumber}/${key}` })
+                } else if (!_documentType) {
+                    _documentType = key;
+                }
+            })
+            setDocumentType(_documentType);
+            setFiles(tempFiles);
+        }
+    }, [])
 
     const fileInputRef = createRef();
     const handleSubmit = async e => {
