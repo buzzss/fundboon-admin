@@ -128,16 +128,14 @@ const UploadDocuments = props => {
                 formData.append(value, file);
             }
         });
-        //formData.append("targetFolder", "XTYS1234489");
         const config = {
             withCredentials: true,
             headers: {
                 'Accept': 'application/json',
-                'content-type': 'multipart/form-data',
-                'targetfolder': 'XTYS1234489'
+                'content-type': 'multipart/form-data'
             }
         }
-        post(FILE_UPLOAD_URL, formData, config)
+        post(`${FILE_UPLOAD_URL}?applicationId=${props.viewApplication.applicationNumber}`, formData, config)
             .then(response => {
                 setUploading(false);
                 handleSaveApplication();
