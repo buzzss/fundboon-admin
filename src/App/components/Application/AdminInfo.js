@@ -169,7 +169,7 @@ const AdminInfo = props => {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{transactionLogs && transactionLogs.length && <TableRow>
+						{transactionLogs && Boolean(transactionLogs.length) && <TableRow>
 							<TableCell>{1}</TableCell>
 							<TableCell>{transactionLogs[transactionLogs.length - 1].bankName || 'NA'}</TableCell>
 							<TableCell>{transactionLogs[transactionLogs.length - 1].timeStamp || 'NA'}</TableCell>
@@ -178,6 +178,9 @@ const AdminInfo = props => {
 								<Link href="#" onClick={() => setOpen(true)} variant="body2">logs</Link>
 							</TableCell>
 							{/* <TableCell align="right"><Autorenew style={{ cursor: 'pointer', marginRight: 10 }} onClick={console.log} /><DeleteForeverIcon style={{ cursor: 'pointer' }} onClick={console.log} /></TableCell> */}
+						</TableRow>}
+						{(!transactionLogs || Boolean(!transactionLogs.length)) && <TableRow>
+							<TableCell colSpan={5}>No Records</TableCell>
 						</TableRow>}
 					</TableBody>
 				</Table>
@@ -204,7 +207,7 @@ const AdminInfo = props => {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{transactionLogs && transactionLogs.map((transactionLog, index) => <TableRow>
+								{transactionLogs && Boolean(transactionLogs.length) && transactionLogs.map((transactionLog, index) => <TableRow>
 									<TableCell>{index + 1}</TableCell>
 									<TableCell>{transactionLog.timeStamp || 'NA'}</TableCell>
 									<TableCell>{transactionLog.endPoint || 'NA'}</TableCell>
@@ -213,6 +216,9 @@ const AdminInfo = props => {
 								</TableRow>)}
 
 							</TableBody>
+							{(!transactionLogs || Boolean(!transactionLogs.length)) && <TableRow>
+							<TableCell colSpan={5}>No Records</TableCell>
+						</TableRow>}
 						</Table>
 					</TableContainer>
 				</DialogContent>
