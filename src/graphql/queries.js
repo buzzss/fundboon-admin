@@ -349,3 +349,13 @@ export const GET_TRANSACTIONLOG_QUERY = `
 	}
   }
 `;
+
+export const GET_BANK_APPLICATION_QUERY = `
+  query($applicationId: String!) {
+	getBankApplications(applicationId: $applicationId) {
+		bankName
+		updatedAt
+		status
+	}
+  }
+`;

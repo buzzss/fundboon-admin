@@ -24,10 +24,19 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Snackbar from '@material-ui/core/Snackbar';
-import { GET_TRANSACTIONLOG_QUERY } from '../../../graphql/queries';
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
+import { GET_TRANSACTIONLOG_QUERY, GET_BANK_APPLICATION_QUERY } from '../../../graphql/queries';
 import { UPDATE_ADMIN_APPLICATION_DATA } from '../../../graphql/mutation';
 import { FULLERTON_APPLY_URL, useClient } from '../../../client';
 import { post } from 'axios';
+
+function getSteps() {
+	return ['Applying Fullerton Application'];
+  }
+
+  
 
 const AdminInfo = props => {
 	const client = useClient();
@@ -35,22 +44,48 @@ const AdminInfo = props => {
 	const [comment, setComment] = useState("");
 	const [banksToApply, setBanksToApply] = useState(['fullerton']);
 	const [open, setOpen] = React.useState(false);
+	const [openStepper, setOpenStepper] = React.useState(false);
 	const [applying, setApplying] = useState(false);;
 	const [applyResponse, setApplyResponse] = useState({});
 	const [transactionLogs, setTransactionLogs] = useState(null);
+	const [bankApplications, setBankApplications] = useState(null);
+	const [activeStep, setActiveStep] = React.useState(0);
+  	const steps = getSteps();
+
 	console.log(props);
+
+	const getBankApplications = () => {
+		client.request(GET_BANK_APPLICATION_QUERY, {
+			applicationId: props.viewApplication.applicationNumber,
+		}).then(data => {
+			console.log(data)
+			setBankApplications(data.getBankApplications || []);
+			setApplicationStatus(props.viewApplication.adminStatus);
+			setComment(props.viewApplication.adminComments);
+		});
+	}
+
+	const getTransactionLogs = () => {
+		client.request(GET_TRANSACTIONLOG_QUERY, {
+			applicationId: props.viewApplication.applicationNumber,
+		}).then(data => {
+			console.log(data)
+			setTransactionLogs(data.getTransactionLogs || []);
+			setApplicationStatus(props.viewApplication.adminStatus);
+			setComment(props.viewApplication.adminComments);
+		});
+	}
+
 	useEffect(() => {
 		if (transactionLogs === null) {
-			client.request(GET_TRANSACTIONLOG_QUERY, {
-				applicationId: props.viewApplication.applicationNumber,
-			}).then(data => {
-				console.log(data)
-				setTransactionLogs(data.getTransactionLogs || []);
-				setApplicationStatus(props.viewApplication.adminStatus);
-				setComment(props.viewApplication.adminComments);
-			});
+			getTransactionLogs();
 		}
-	});
+		if(bankApplications === null) {
+			getBankApplications();
+		}
+	}, []);
+
+	
 	const applicationStatuses = [
 		{ value: "pending", label: "Pending" },
 		{ value: "in_progress", label: "In Progress" },
@@ -89,9 +124,10 @@ const AdminInfo = props => {
 		// 		'Content-Type': 'x-www-form-urlencoded'
 		// 	 }
 		// })
+		setOpenStepper(true);
+		setApplying(true);
 		post(`${FULLERTON_APPLY_URL}?applicationId=${props.viewApplication.applicationNumber}`, { applicationId: props.viewApplication.applicationNumber })
 			.then(response => {
-				console.log(response)
 				setApplying(false);
 				setApplyResponse({ success: true, message: 'Applied Successfully!' });
 			}).catch(error => {
@@ -154,7 +190,7 @@ const AdminInfo = props => {
 			</button>
 			<br />
 			<h4>Applications
-				{/* <IconButton onClick={console.log}><Autorenew /></IconButton> */}
+				<IconButton onClick={getBankApplications}><Autorenew /></IconButton>
 			</h4>
 			<TableContainer component={Paper}>
 				<Table>
@@ -169,17 +205,17 @@ const AdminInfo = props => {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{transactionLogs && Boolean(transactionLogs.length) && <TableRow>
+						{bankApplications && Boolean(bankApplications.length) && bankApplications.map((bankApplication, index) =>  <TableRow>
 							<TableCell>{1}</TableCell>
-							<TableCell>{transactionLogs[transactionLogs.length - 1].bankName || 'NA'}</TableCell>
-							<TableCell>{transactionLogs[transactionLogs.length - 1].timeStamp || 'NA'}</TableCell>
-							<TableCell>{transactionLogs[transactionLogs.length - 1].endPoint || 'NA'}</TableCell>
+							<TableCell>{bankApplication.bankName || 'NA'}</TableCell>
+							<TableCell>{bankApplication.updatedAt || 'NA'}</TableCell>
+							<TableCell>{bankApplication.status || 'NA'}</TableCell>
 							<TableCell>
 								<Link href="#" onClick={() => setOpen(true)} variant="body2">logs</Link>
 							</TableCell>
 							{/* <TableCell align="right"><Autorenew style={{ cursor: 'pointer', marginRight: 10 }} onClick={console.log} /><DeleteForeverIcon style={{ cursor: 'pointer' }} onClick={console.log} /></TableCell> */}
-						</TableRow>}
-						{(!transactionLogs || Boolean(!transactionLogs.length)) && <TableRow>
+						</TableRow>)}
+						{(!bankApplications || Boolean(!bankApplications.length)) && <TableRow>
 							<TableCell colSpan={5}>No Records</TableCell>
 						</TableRow>}
 					</TableBody>
@@ -217,13 +253,35 @@ const AdminInfo = props => {
 
 							</TableBody>
 							{(!transactionLogs || Boolean(!transactionLogs.length)) && <TableRow>
-							<TableCell colSpan={5}>No Records</TableCell>
-						</TableRow>}
+								<TableCell colSpan={5}>No Records</TableCell>
+							</TableRow>}
 						</Table>
 					</TableContainer>
 				</DialogContent>
 				<DialogActions>
 					<button style={{ width: 100 }} onClick={() => setOpen(false)} type="button" className="btn btn-danger btn-block">
+						OK
+			</button>
+				</DialogActions>
+			</Dialog>
+			<Dialog
+				maxWidth="md"
+				open={openStepper}
+				onClose={() => setOpenStepper(false)}
+				aria-labelledby="responsive-dialog-title"
+			>
+				<DialogTitle id="responsive-dialog-title">Apply Bank</DialogTitle>
+				<DialogContent>
+					<Stepper nonLinear activeStep={activeStep}>
+						{steps.map((label) => (
+							<Step key={label} completed={!applying}>
+								<StepLabel>{label}</StepLabel>
+							</Step>
+						))}
+					</Stepper>
+				</DialogContent>
+				<DialogActions>
+					<button disabled={applying} style={{ width: 100 }} onClick={() => setOpenStepper(false)} type="button" className="btn btn-danger btn-block">
 						OK
 			</button>
 				</DialogActions>
