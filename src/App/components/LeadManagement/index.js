@@ -8,7 +8,9 @@ import FuzzySearch from 'fuzzy-search';
 import { useClient } from '../../../client';
 import { useCookies } from 'react-cookie';
 import { GET_ALL_LEADS_QUERY } from '../../../graphql/queries';
+import { DELETE_LEAD_MUTATION } from "../../../graphql/mutation";
 import ViewLeads from "./ViewLeads";
+import AddLeads from "./AddLeads";
 
 import Aux from "../../../Admin/hoc/_Aux";
 import { ContactSupportOutlined } from '@material-ui/icons';
@@ -16,15 +18,32 @@ import { get } from 'jquery';
 
 var leads = [];
 
+const selectLeads = () => {
+    const checkboxes = document.querySelectorAll(".checkboxLeads");
+
+    const response = [];
+    checkboxes.forEach((ele) => {
+        const leadId = ele.getAttribute("data-id");
+        if (ele.checked) {
+            response.push(leadId);
+        }
+    });
+    return response;
+};
+
+
 const BankLeads = () =>  {
     const client = useClient();
     const [cookies, removeCookie] = useCookies(['user']);
     const [lead, setLead] = useState([]);
-    const [search, setSearch] = useState('');
     const [isLoading, setLoading] = useState('loading');
     const [show, setShow] = useState(false);
     const [showView, setShowView] = useState(false);
     const [leadId, setLeadId] = useState('');
+
+    const [search, setSearch] = useState("");
+    const [leadsSelected, setSelectedLeads] = useState([]);
+    const [showDelete, setShowDelete] = useState(false);
 
 
     const handleCloseShow = () => {
@@ -35,14 +54,35 @@ const BankLeads = () =>  {
         setShowView(true);
         setLeadId(value);
     }
+
+    const handleCloseDelete = () => {
+        setShowDelete(false);
+    };
+
+    const handleShowDelete = () => {
+        setSelectedLeads(selectLeads());
+        setShowDelete(true);
+    };
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+    
+    const doDelete = async () => {
+        const data = leadsSelected.map((ele) => ({ leadId: ele }));
+        const variables = {
+            leadIds: data,
+        };
+        const response = await client.request(DELETE_LEAD_MUTATION, variables);
+        console.log(response);
+        setShowDelete(false);
+        getLeadsRequest();
+    };
     
 
     const getLeadsRequest = async e => {
     try {
         const getAllLeads = await client.request(GET_ALL_LEADS_QUERY);
-        console.log(getAllLeads);
         setLead(getAllLeads.getAllLeads);
-        console.log(lead+"test");
         setLoading('');
     } catch (err) {
         console.log(err);
@@ -55,7 +95,17 @@ const BankLeads = () =>  {
     const Details = () => {
     const card = [];
 
-    for (let i = 0; i < lead.length; i++) {
+    const searcher = new FuzzySearch(
+        lead,
+        ["leadId", "refererId", "name", "loanType"],
+        {
+            caseSensitive: true,
+        }
+    );
+
+    const result = searcher.search(search);
+
+    for (let i = 0; i < result.length; i++) {
         var data = {};
         data['id'] = i;
         
@@ -65,7 +115,10 @@ const BankLeads = () =>  {
         card.push(
         <tr>
             <td>
-            <input className="form-control" type="checkbox" />
+            <input
+            data-id={result[i].leadId}
+            className="checkboxLeads"
+            type="checkbox" />
             </td>
             <td scope="row">
             {' '}
@@ -73,35 +126,35 @@ const BankLeads = () =>  {
             </td>
             <td>
             {' '}
-            {lead[i].leadId}{' '}
+            {result[i].leadId}{' '}
             </td>
             <td>
             {' '}
-            {lead[i].date}{' '}
+            {result[i].date}{' '}
             </td>
             <td>
             {' '}
-            {lead[i].dateOfApply}{' '}
+            {result[i].dateOfApply}{' '}
             </td>
             <td>
             {' '}
-            {lead[i].updateDate}{' '}
+            {result[i].updateDate}{' '}
             </td>
             <td>
             {' '}
-            {lead[i].refererId}{' '}
+            {result[i].refererId}{' '}
             </td>
             <td>
             {' '}
-            {lead[i].name}{' '}
+            {result[i].name}{' '}
             </td>
             <td>
             {' '}
-            {lead[i].loanType}{' '}
+            {result[i].loanType}{' '}
             </td>
             <td>
             {' '}
-            {lead[i].amount}{' '}
+            {result[i].amount}{' '}
             </td>
             <td>
             {' '}
@@ -127,8 +180,20 @@ const BankLeads = () =>  {
                                 filename="fundboon-leads"
                                 sheet="fundboon-leads"
                                 buttonText="Download as Excel"/>
+                                <Button
+                                    className="float-right"
+                                    variant="secondary"
+                                    onClick={handleShow}
+                                >
+                                    New Lead
+                                </Button>
                                 <Col md={4} className="float-right">
-                                    <Form.Control type="text" placeholder="Search" className="mb-3" />
+                                    <Form.Control 
+                                    type="text" 
+                                    placeholder="Search" 
+                                    value={search}
+                                    onChange={(event) => setSearch(event.target.value)}
+                                    className="mb-3" />
                                 </Col>
                             </Card.Header>
                             <Card.Body>
@@ -143,6 +208,37 @@ const BankLeads = () =>  {
                                 </Modal.Body>
                                 <Modal.Footer>
                                 <Button variant="secondary" onClick={handleCloseShow}>
+                                    Close
+                                </Button>
+                                </Modal.Footer>
+                            </Modal>
+
+                            <Modal show={showDelete} onHide={handleCloseDelete}>
+                                <Modal.Header closeButton>
+                                <Modal.Title>Confirm Deletion</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                Are you sure you want to delete the selected products ?
+                                </Modal.Body>
+                                <Modal.Footer>
+                                <Button variant="secondary" onClick={handleCloseDelete}>
+                                    Close
+                                </Button>
+                                <Button variant="primary" onClick={doDelete}>
+                                    Confirm
+                                </Button>
+                                </Modal.Footer>
+                            </Modal>
+
+                            <Modal show={show} onHide={handleClose} size="lg">
+                                <Modal.Header closeButton>
+                                <Modal.Title>Add Lead</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                <AddLeads />
+                                </Modal.Body>
+                                <Modal.Footer>
+                                <Button variant="secondary" onClick={handleClose}>
                                     Close
                                 </Button>
                                 </Modal.Footer>
@@ -169,7 +265,7 @@ const BankLeads = () =>  {
                                     </tbody>
                                 </Table>
                                 <br />
-                                <Button className="float-right" variant="danger" onClick={() => {alert('To be added.')}}>Delete</Button>
+                                <Button className="float-right" variant="danger" onClick={handleShowDelete}>Delete</Button>
                             </Card.Body>
                             
                         </Card>

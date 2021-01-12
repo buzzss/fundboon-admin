@@ -1,3 +1,64 @@
+export const GET_VISITORS = `
+	query{
+		getVisitors
+	}
+`
+
+export const GET_ACCOUNTS_TODAY = `
+	query{
+		getAccountsToday
+	}
+`
+
+export const GET_APPLICATIONS_TODAY = `
+	query{
+		getApplicationsToday
+	}
+`
+
+export const GET_ENQUIRIES_TODAY = `
+	query{
+		getEnquiriesToday
+	}
+`
+
+export const GET_APPLICATION_SERVICE_LOG = `
+	query{
+		getApplicationServiceLog{
+			homeLoan{
+				today
+				monthly
+				yearly
+				all
+			}
+			personalLoan{
+				today
+				monthly
+				yearly
+				all
+			}
+			buisnessLoan{
+				today
+				monthly
+				yearly
+				all
+			}
+			overdraft{
+				today
+				monthly
+				yearly
+				all
+			}
+			mortgage{
+				today
+				monthly
+				yearly
+				all
+			}
+		}
+	}
+`
+
 export const USER_EXISTS_QUERY = `
   query($email: String!) {
     userExists(email: $email)

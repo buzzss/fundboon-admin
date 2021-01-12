@@ -6,6 +6,7 @@ import Application from "./components/Application";
 import UserManagement from "./components/UserManagement";
 import Bank from "./components/Bank";
 import BankLeads from "./components/LeadManagement";
+import Dashboard from "./components/Dashboard"
 
 window.jQuery = $;
 window.$ = $;
@@ -22,7 +23,7 @@ const routes = [
 ];
 
 const adminRoutes = [
-  { path: "/admin/dashboard", exact: true, name: "Dashboard", component: null },
+  { path: "/admin/dashboard", exact: true, name: "Dashboard", component: Dashboard },
   { path: "/admin/profile", exact: true, name: "Profile", component: Profile },
   {
     path: "/admin/application",

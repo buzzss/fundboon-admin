@@ -26,6 +26,12 @@ export const DELETE_PRODUCT_MUTATION = `
   }
 `;
 
+export const DELETE_LEAD_MUTATION = `
+  mutation($leadIds: [LeadIds]){
+    deleteLead(input: $leadIds)
+  }
+`;
+
 export const DEACTIVATE_MUTATION = `
   mutation($ids: [UserID]){
     deactivateUser(input: $ids)
@@ -468,6 +474,47 @@ export const ADD_USER_DATA = `
         aadhaar: $aadhaar,
         nationality: $nationality,
       },
+    })
+  }
+`;
+
+export const ADD_LEAD_MUTATION = `
+  mutation($email:String, $mobile:String,$name:String, $amount:String, $type:String,
+    $empType:String,
+    $martial:String,
+    $education:String,
+    $gender:String,
+    $date:String,
+    $income:String,
+    $salaryType:String,
+    $companyName:String,
+    $address:String,
+    $city:String,
+    $state:String,
+    $pinCode:String,
+    $pan:String,
+    $aadhar:String) {
+    addLead(input:
+      {
+        email:$email,
+        mobile:$mobile,
+        name:$name,
+        amount:$amount,
+        loanType:$type
+        empType:$empType
+        martial:$martial
+        education:$education
+        gender:$gender
+        date:$date
+        income:$income
+        salaryType:$salaryType
+        companyName:$companyName
+        address:$address
+        city:$city
+        state:$state
+        pinCode:$pinCode
+        pan:$pan
+        aadhaar:$aadhar
     })
   }
 `;

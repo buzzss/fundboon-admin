@@ -6,7 +6,6 @@ import DatePicker from 'react-datepicker';
 import {GET_ADMIN_USER_QUERY} from '../../../graphql/queries';
 import {UPDATE_ADMIN_USER_PROFILE} from '../../../graphql/mutation';
 
-import img from './gg.png';
 import "react-datepicker/dist/react-datepicker.css";
 
 // todo: update cookie username, validation before updating, invalid change for altEmail
@@ -166,14 +165,9 @@ class Profile extends React.Component {
 
 		const showProfile = (
 			<Row>
-				<Col className="mb-3" sm={2}>
+				<Col className="" sm={2}>
 					<Card>
-					<Card.Body>
-						<Row className="mb-5">
-							<Col className="mb-3">
-								<Image src={img} width={180} height={180} roundedCircle/>
-							</Col>
-						</Row>
+					<Card.Body className="d-flex justify-content-center">
 						{ this.state.msg &&
 							<Row className="mb-5">
 								<Col className="mb-3">
@@ -182,7 +176,7 @@ class Profile extends React.Component {
 							</Row>
 						}
 						<Row>
-							<Col className="mb-3">
+							<Col className="">
 								<Button variant="outline-primary" onClick={() => {this.setState({editProfileSwitch: true, msg: null})}}>Edit Profile</Button>{' '}
 							</Col>
 						</Row>
@@ -359,12 +353,7 @@ class Profile extends React.Component {
 			<Row>
 				<Col className="mb-3" sm={2}>
 					<Card>
-					<Card.Body>
-						<Row className="mb-5">
-							<Col className="mb-3">
-								<Image src={img} width={200} height={200} roundedCircle/>
-							</Col>
-						</Row>
+					<Card.Body className="d-flex justify-content-center">
 						<Row>
 							<Col className="mb-3">
 								<Button variant="outline-primary" onClick={(e) => {this.handleSubmit(e)}}>Save Profile</Button>{' '}
