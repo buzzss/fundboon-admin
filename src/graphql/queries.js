@@ -180,6 +180,14 @@ export const GET_ALL_APPLICATIONS_QUERY = `
   		employmentProof
   		incomeProof
 	  }
+	  bankStatus {
+		fullerton {
+			hubbleId
+			updatedAt
+			status
+			description
+		}
+	  }
     }
   }
 `;
@@ -394,6 +402,14 @@ export const GET_USER_APPLICATION_QUERY = `
   		employmentProof
   		incomeProof
 	  }
+	  bankStatus {
+		fullerton {
+			hubbleId
+			updatedAt
+			status
+			description
+		}
+	  }
     }
   }
 `;
@@ -417,6 +433,19 @@ export const GET_BANK_APPLICATION_QUERY = `
 		bankName
 		updatedAt
 		status
+	}
+  }
+`;
+
+export const GET_BANK_STATUS_QUERY = `
+  query($applicationId: String!) {
+	getBankStatus(applicationId: $applicationId) {
+		fullerton {
+			hubbleId
+			updatedAt
+			status
+			description
+		}
 	}
   }
 `;

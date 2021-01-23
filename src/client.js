@@ -10,9 +10,14 @@ export const WS_URL =
     : 'ws://localhost:5000/graphql';
 
 export const FILE_UPLOAD_URL =
-    process.env.NODE_ENV === 'production'
-      ? '/api/fullerton/file-upload'
-      : 'https://www.fundboon.com/api/fullerton/file-upload';
+  process.env.NODE_ENV === 'production'
+    ? '/api/fullerton/file-upload'
+    : 'https://www.fundboon.com/api/fullerton/file-upload';
+
+export const FILE_DOWNLOAD_URL =
+  process.env.NODE_ENV === 'production'
+    ? '/api/fullerton/file-download'
+    : 'https://www.fundboon.com/api/fullerton/file-download';
 
 export const FULLERTON_APPLY_URL =
   process.env.NODE_ENV === 'production'

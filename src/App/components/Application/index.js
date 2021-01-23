@@ -44,6 +44,7 @@ const Application = () =>  {
     const [showDelete, setShowDelete] = useState(false);
 
     const handleCloseShow = () => {
+        getApplicationsRequest();
         setShowView(false);
         setApplicationId('');
     }
@@ -207,7 +208,7 @@ const Application = () =>  {
                                 </Modal.Header>
                                 
                                 <Modal.Body>
-                                <ViewApplication viewApplication={viewApplication} {...applications[applicationId]} />
+                                <ViewApplication getApplicationsRequest={getApplicationsRequest} viewApplication={viewApplication} {...applications[applicationId]} />
                                 </Modal.Body>
                                 <Modal.Footer>
                                 <Button variant="secondary" onClick={handleCloseShow}>

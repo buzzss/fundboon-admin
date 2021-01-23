@@ -27,16 +27,16 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
-import { GET_TRANSACTIONLOG_QUERY, GET_BANK_APPLICATION_QUERY } from '../../../graphql/queries';
+import { GET_TRANSACTIONLOG_QUERY, GET_BANK_STATUS_QUERY } from '../../../graphql/queries';
 import { UPDATE_ADMIN_APPLICATION_DATA } from '../../../graphql/mutation';
 import { FULLERTON_APPLY_URL, useClient } from '../../../client';
 import { post } from 'axios';
 
 function getSteps() {
 	return ['Applying Fullerton Application'];
-  }
+}
 
-  
+
 
 const AdminInfo = props => {
 	const client = useClient();
@@ -50,16 +50,21 @@ const AdminInfo = props => {
 	const [transactionLogs, setTransactionLogs] = useState(null);
 	const [bankApplications, setBankApplications] = useState(null);
 	const [activeStep, setActiveStep] = React.useState(0);
-  	const steps = getSteps();
+	const steps = getSteps();
 
 	console.log(props);
 
 	const getBankApplications = () => {
-		client.request(GET_BANK_APPLICATION_QUERY, {
+		client.request(GET_BANK_STATUS_QUERY, {
 			applicationId: props.viewApplication.applicationNumber,
 		}).then(data => {
 			console.log(data)
-			setBankApplications(data.getBankApplications || []);
+			let _bankApplications = [];
+			let _bankStatus = data.getBankStatus || {};
+			Object.keys(_bankStatus).forEach(bankName => {
+				_bankApplications.push({ bankName, ..._bankStatus[bankName] })
+			})
+			setBankApplications(_bankApplications);
 			setApplicationStatus(props.viewApplication.adminStatus);
 			setComment(props.viewApplication.adminComments);
 		});
@@ -80,12 +85,12 @@ const AdminInfo = props => {
 		if (transactionLogs === null) {
 			getTransactionLogs();
 		}
-		if(bankApplications === null) {
+		if (bankApplications === null) {
 			getBankApplications();
 		}
 	}, []);
 
-	
+
 	const applicationStatuses = [
 		{ value: "pending", label: "Pending" },
 		{ value: "in_progress", label: "In Progress" },
@@ -117,18 +122,12 @@ const AdminInfo = props => {
 	}
 
 	const applyForBank = () => {
-		// post(`${FULLERTON_APPLY_URL}?applicationId=FBA20200928117`, null , {
-		// 	withCredentials: true,
-		// 	headers: { 
-		// 		'Accept': 'application/json',
-		// 		'Content-Type': 'x-www-form-urlencoded'
-		// 	 }
-		// })
 		setOpenStepper(true);
 		setApplying(true);
 		post(`${FULLERTON_APPLY_URL}?applicationId=${props.viewApplication.applicationNumber}`, { applicationId: props.viewApplication.applicationNumber })
 			.then(response => {
 				setApplying(false);
+				getBankApplications();
 				setApplyResponse({ success: true, message: 'Applied Successfully!' });
 			}).catch(error => {
 				setApplying(false);
@@ -205,7 +204,7 @@ const AdminInfo = props => {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{bankApplications && Boolean(bankApplications.length) && bankApplications.map((bankApplication, index) =>  <TableRow>
+						{bankApplications && Boolean(bankApplications.length) && bankApplications.map((bankApplication, index) => <TableRow key={index}>
 							<TableCell>{1}</TableCell>
 							<TableCell>{bankApplication.bankName || 'NA'}</TableCell>
 							<TableCell>{bankApplication.updatedAt || 'NA'}</TableCell>
@@ -243,18 +242,17 @@ const AdminInfo = props => {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{transactionLogs && Boolean(transactionLogs.length) && transactionLogs.map((transactionLog, index) => <TableRow>
+								{transactionLogs && Boolean(transactionLogs.length) && transactionLogs.map((transactionLog, index) => <TableRow key={index}>
 									<TableCell>{index + 1}</TableCell>
 									<TableCell>{transactionLog.timeStamp || 'NA'}</TableCell>
 									<TableCell>{transactionLog.endPoint || 'NA'}</TableCell>
 									<TableCell>{transactionLog.request || 'NA'}</TableCell>
 									<TableCell>{transactionLog.response || 'NA'}</TableCell>
 								</TableRow>)}
-
+								{(!transactionLogs || Boolean(!transactionLogs.length)) && <TableRow>
+									<TableCell colSpan={5}>No Records</TableCell>
+								</TableRow>}
 							</TableBody>
-							{(!transactionLogs || Boolean(!transactionLogs.length)) && <TableRow>
-								<TableCell colSpan={5}>No Records</TableCell>
-							</TableRow>}
 						</Table>
 					</TableContainer>
 				</DialogContent>

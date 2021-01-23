@@ -20,8 +20,7 @@ import Link from '@material-ui/core/Link';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Snackbar from '@material-ui/core/Snackbar';
 import { UPDATE_ADMIN_APPLICATION_DATA } from '../../../graphql/mutation';
-import { FILE_UPLOAD_URL, useClient } from '../../../client';
-import { post } from 'axios';
+import { FILE_UPLOAD_URL, FILE_DOWNLOAD_URL, useClient } from '../../../client';
 
 const UploadDocuments = props => {
     const client = useClient();
@@ -38,20 +37,25 @@ const UploadDocuments = props => {
     ];
 
     const getDocumentDetail = (type) => documentTypes.find(item => item.value === type);
-    
+
     useEffect(() => {
         if (files.length === 0) {
+            console.log('if')
             let tempFiles = [];
             let _documentType = documentType;
             Object.keys(props.viewApplication.files).forEach(key => {
                 if (props.viewApplication.files[key]) {
-                    tempFiles.push({ ...getDocumentDetail(key), previousUpload: true, fileName: props.viewApplication.files[key], file: props.viewApplication.files[key], filePreview: `/filepreview/${props.viewApplication.applicationNumber}/${key}` })
+                    let _fileNameArray = props.viewApplication.files[key].split('.');
+                    let filePreview = `${FILE_DOWNLOAD_URL}?applicationId=${props.viewApplication.applicationNumber}&fileName=${key.split(/(?=[A-Z])/).join('_').toLowerCase()}.${_fileNameArray[_fileNameArray.length - 1]}`
+                    tempFiles.push({ ...getDocumentDetail(key), previousUpload: true, fileName: props.viewApplication.files[key], file: props.viewApplication.files[key], filePreview })
                 } else if (!_documentType) {
                     _documentType = key;
                 }
             })
             setDocumentType(_documentType);
             setFiles(tempFiles);
+        } else {
+            console.log('else')
         }
     }, [])
 
@@ -126,10 +130,9 @@ const UploadDocuments = props => {
     const fileUpload = async () => {
         setUploading(true);
         const formData = new FormData();
-        formData.append("applicationId", props.viewApplication.applicationNumber)
         files.forEach(({ value, file, previousUpload }) => {
             if (!previousUpload) {
-                formData.append(value, file);
+                formData.append(value.split(/(?=[A-Z])/).join('_').toLowerCase(), file);
             }
         });
         const config = {
@@ -139,28 +142,25 @@ const UploadDocuments = props => {
                 'content-type': 'multipart/form-data'
             }
         }
-        post(`${FILE_UPLOAD_URL}?applicationId=${props.viewApplication.applicationNumber}`, formData, config)
-            .then(response => {
+        var requestOptions = {
+            method: 'POST',
+            body: formData,
+            redirect: 'follow'
+        };
+
+        fetch(`${FILE_UPLOAD_URL}?applicationId=${props.viewApplication.applicationNumber}`, requestOptions)
+            .then(response => response.json())
+            .then(result => {
                 setUploading(false);
                 handleSaveApplication();
                 setUploadResponse({ success: true, message: 'Documents Uploaded Successfully!' });
-            }).catch(error => {
+                console.log(result)
+            })
+            .catch(error => {
                 setUploading(false);
                 setUploadResponse({ success: false, message: 'Error in uploading documents, please try again later' });
+                console.log('error', error)
             });
-        // const request = new XMLHttpRequest();
-        // request.open("POST", FILE_UPLOAD_URL);
-        // request.send(formData);
-        // request.onreadystatechange = function () {
-        //     if (request.readyState === XMLHttpRequest.DONE) {
-        //         setUploading(false);
-        //         if (request.status === 200) {
-        //             setUploadResponse({ success: true, message: 'Documents Uploaded Successfully!' });
-        //         } else {
-        //             setUploadResponse({ success: false, message: 'Error in uploading documents, please try again later' });
-        //         }
-        //     }
-        // }
 
     }
 
