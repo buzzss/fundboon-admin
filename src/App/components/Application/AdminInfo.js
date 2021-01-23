@@ -27,7 +27,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
-import { GET_TRANSACTIONLOG_QUERY, GET_BANK_STATUS_QUERY } from '../../../graphql/queries';
+import { GET_TRANSACTIONLOG_QUERY, GET_BANK_STATUS_QUERY, GET_APPLICATION_STATUS_COMMENT_QUERY } from '../../../graphql/queries';
 import { UPDATE_ADMIN_APPLICATION_DATA } from '../../../graphql/mutation';
 import { FULLERTON_APPLY_URL, useClient } from '../../../client';
 import { post } from 'axios';
@@ -65,8 +65,16 @@ const AdminInfo = props => {
 				_bankApplications.push({ bankName, ..._bankStatus[bankName] })
 			})
 			setBankApplications(_bankApplications);
-			setApplicationStatus(props.viewApplication.adminStatus);
-			setComment(props.viewApplication.adminComments);
+		});
+	}
+
+	const getApplicationStatusComment = () => {
+		client.request(GET_APPLICATION_STATUS_COMMENT_QUERY, {
+			applicationId: props.viewApplication.applicationNumber,
+		}).then(data => {
+			let statusComment = data.getApplicationStatusComment || {};
+			setApplicationStatus(statusComment.adminStatus);
+			setComment(statusComment.adminComments);
 		});
 	}
 
@@ -76,8 +84,6 @@ const AdminInfo = props => {
 		}).then(data => {
 			console.log(data)
 			setTransactionLogs(data.getTransactionLogs || []);
-			setApplicationStatus(props.viewApplication.adminStatus);
-			setComment(props.viewApplication.adminComments);
 		});
 	}
 
@@ -87,6 +93,9 @@ const AdminInfo = props => {
 		}
 		if (bankApplications === null) {
 			getBankApplications();
+		}
+		if(!applicationStatus || !comment) {
+			getApplicationStatusComment();
 		}
 	}, []);
 

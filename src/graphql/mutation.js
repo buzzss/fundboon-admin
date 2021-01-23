@@ -225,8 +225,16 @@ export const UPDATE_APPLICATION_DATA = `
 `;
 
 export const UPDATE_ADMIN_APPLICATION_DATA = `
-mutation($applicationNumber: String, $adminStatus: String, $adminComments: String, $files: Files){
-  adminSaveApplication(applicationNumber: $applicationNumber, adminStatus: $adminStatus, adminComments: $adminComments, files: $files) {
+mutation($applicationNumber: String, $adminStatus: String, $adminComments: String){
+  adminSaveApplication(applicationNumber: $applicationNumber, adminStatus: $adminStatus, adminComments: $adminComments) {
+    _id
+  }
+}
+`;
+
+export const UPDATE_ADMIN_FILES_DATA = `
+mutation($applicationNumber: String, $files: Files){
+  adminSaveFiles(applicationNumber: $applicationNumber, files: $files) {
     _id
   }
 }

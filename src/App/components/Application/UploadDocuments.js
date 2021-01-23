@@ -19,7 +19,8 @@ import Grid from '@material-ui/core/Grid';
 import Link from '@material-ui/core/Link';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Snackbar from '@material-ui/core/Snackbar';
-import { UPDATE_ADMIN_APPLICATION_DATA } from '../../../graphql/mutation';
+import { GET_APPLICATION_FILES_QUERY } from '../../../graphql/queries';
+import { UPDATE_ADMIN_FILES_DATA } from '../../../graphql/mutation';
 import { FILE_UPLOAD_URL, FILE_DOWNLOAD_URL, useClient } from '../../../client';
 
 const UploadDocuments = props => {
@@ -39,24 +40,24 @@ const UploadDocuments = props => {
     const getDocumentDetail = (type) => documentTypes.find(item => item.value === type);
 
     useEffect(() => {
-        if (files.length === 0) {
-            console.log('if')
+        client.request(GET_APPLICATION_FILES_QUERY, {
+			applicationId: props.viewApplication.applicationNumber,
+		}).then(data => {
+            let fileResponse = data.getApplicationFiles || {};
             let tempFiles = [];
             let _documentType = documentType;
-            Object.keys(props.viewApplication.files).forEach(key => {
-                if (props.viewApplication.files[key]) {
-                    let _fileNameArray = props.viewApplication.files[key].split('.');
+            Object.keys(fileResponse).forEach(key => {
+                if (fileResponse[key]) {
+                    let _fileNameArray = fileResponse[key].split('.');
                     let filePreview = `${FILE_DOWNLOAD_URL}?applicationId=${props.viewApplication.applicationNumber}&fileName=${key.split(/(?=[A-Z])/).join('_').toLowerCase()}.${_fileNameArray[_fileNameArray.length - 1]}`
-                    tempFiles.push({ ...getDocumentDetail(key), previousUpload: true, fileName: props.viewApplication.files[key], file: props.viewApplication.files[key], filePreview })
+                    tempFiles.push({ ...getDocumentDetail(key), previousUpload: true, fileName: props.viewApplication.files[key], file: fileResponse[key], filePreview })
                 } else if (!_documentType) {
                     _documentType = key;
                 }
             })
             setDocumentType(_documentType);
             setFiles(tempFiles);
-        } else {
-            console.log('else')
-        }
+		});
     }, [])
 
     const fileInputRef = createRef();
@@ -124,7 +125,7 @@ const UploadDocuments = props => {
             applicationNumber: props.viewApplication.applicationNumber,
             files: _files
         }
-        await client.request(UPDATE_ADMIN_APPLICATION_DATA, variables);
+        await client.request(UPDATE_ADMIN_FILES_DATA, variables);
     }
 
     const fileUpload = async () => {

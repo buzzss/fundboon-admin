@@ -449,3 +449,23 @@ export const GET_BANK_STATUS_QUERY = `
 	}
   }
 `;
+
+export const GET_APPLICATION_STATUS_COMMENT_QUERY = `
+  query($applicationId: String!) {
+	getApplicationStatusComment(applicationId: $applicationId) {
+		adminStatus
+		adminComments
+	}
+  }
+`;
+
+export const GET_APPLICATION_FILES_QUERY = `
+  query($applicationId: String!) {
+	getApplicationFiles(applicationId: $applicationId) {
+		addressProof
+		identityProof
+		employmentProof
+		incomeProof
+	}
+  }
+`;
